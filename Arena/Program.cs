@@ -57,7 +57,7 @@ namespace Arena
                 Console.WriteLine("\n");
 
                 switch (userInput)
-                {                    
+                {
                     case CommandShowInfoFighters:
                         Console.Clear();
                         ShowInfoFighters();
@@ -65,7 +65,7 @@ namespace Arena
 
                     case CommandChooseFighters:
                         Console.Clear();
-                        ChooseFighters();
+                        ChooseAndStartFight();
                         break;
 
                     case CommandExit:
@@ -130,7 +130,7 @@ namespace Arena
             return new Random().Next(minCountOfFighters, (maxCountOfFighters + 1));
         }
 
-        private void ChooseFighters()
+        private void ChooseAndStartFight()
         {
             Console.Write("Выберите первого бойца: ");
             Fighter firstFighter = GetFighter().Clone();
@@ -165,10 +165,25 @@ namespace Arena
 
         private Fighter GetFighter()
         {
-            int index = GetNumber(Console.ReadLine());
-            Fighter chosenFither = _fighters[index - 1];
+            Fighter chosenFighter = null;
 
-            return chosenFither;
+            while (chosenFighter == null)
+            {
+                int index = GetNumber(Console.ReadLine());
+
+                if (index <= _fighters.Count)
+                {
+
+                    chosenFighter = _fighters[index - 1];
+
+                }
+                else
+                {
+                    Console.WriteLine("Неверный ввод номера бойца.");
+                }
+            }
+
+            return chosenFighter;
         }
 
         private void ShowInfoFighters()
