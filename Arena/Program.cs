@@ -25,13 +25,13 @@ namespace Arena
         public Arena()
         {
             _fighters = new List<Fighter>()
-        {
-            new Gladiator(),
-            new Valkyrie(),
-            new Highlander(),
-            new Shaman(),
-            new Berserk(),
-        };
+            {
+                new Gladiator(),
+                new Valkyrie(),
+                new Highlander(),
+                new Shaman(),
+                new Berserk(),
+            };
 
             _fightingFighters = new List<Fighter>();
         }
@@ -65,7 +65,7 @@ namespace Arena
 
                     case CommandChooseFighters:
                         Console.Clear();
-                        ChooseAndStartFight();
+                        StartFight();
                         break;
 
                     case CommandExit:
@@ -80,19 +80,15 @@ namespace Arena
             }
         }
 
-        private void StartFight()
+        private void FightStage()
         {
-            Fighter fighter1 = _fightingFighters[0];
-            Fighter fighter2 = _fightingFighters[1];
+            int firstFighter = 0;
+            int secondFighter = 1;
 
-            int lot = CastLots();
-
-            if (lot == 1)
-                Fight(fighter1, fighter2);
-
-            if (lot == 2)
-                Fight(fighter2, fighter1);
-
+            Fighter fighter1 = _fightingFighters[firstFighter];
+            Fighter fighter2 = _fightingFighters[secondFighter];
+            Fight(fighter1, fighter2);
+            
             Console.WriteLine("\nБой завершен.");
 
             ClearArena();
@@ -122,22 +118,14 @@ namespace Arena
             AnnounceWinner(fighter, opponent);
         }
 
-        private int CastLots()
-        {
-            int minCountOfFighters = 1;
-            int maxCountOfFighters = 2;
-
-            return new Random().Next(minCountOfFighters, (maxCountOfFighters + 1));
-        }
-
-        private void ChooseAndStartFight()
+        private void StartFight()
         {
             Console.Write("Выберите первого бойца: ");
             Fighter firstFighter = GetFighter().Clone();
             _fightingFighters.Add(firstFighter);
 
             Console.Write("Выберите второго бойца: ");
-            Fighter secondFighter = GetFighter();
+            Fighter secondFighter = GetFighter().Clone();
 
             if (firstFighter.Name == secondFighter.Name)
                 secondFighter = secondFighter.Clone(firstFighter.Name + ".1");
@@ -148,7 +136,7 @@ namespace Arena
 
             Console.Write("\n");
 
-            StartFight();
+            FightStage();
         }
 
         private void AnnounceWinner(Fighter fighter1, Fighter fighter2)
