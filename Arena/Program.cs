@@ -51,15 +51,15 @@ namespace Arena
 
                 Console.WriteLine("\n");
 
+                Console.Clear();
+
                 switch (userInput)
                 {
                     case CommandShowInfoFighters:
-                        Console.Clear();
                         ShowInfoFighters();
                         break;
 
                     case CommandChooseFighters:
-                        Console.Clear();
                         Fight();
                         break;
 
@@ -68,7 +68,6 @@ namespace Arena
                         break;
 
                     default:
-                        Console.Clear();
                         Console.WriteLine("Такой комнады нет. Повторите попытку.");
                         break;
                 }
@@ -83,7 +82,7 @@ namespace Arena
             Fighter fighter1 = _fightingFighters[firstFighter];
             Fighter fighter2 = _fightingFighters[secondFighter];
             FightStage(fighter1, fighter2);
-            
+
             Console.WriteLine("\nБой завершен.");
 
             ClearArena();
@@ -96,9 +95,7 @@ namespace Arena
             while (fighter.Health > 0 && opponent.Health > 0)
             {
                 fighter.ShowInfo();
-
-                if (fighter.Health > 0)
-                    fighter.Attack(opponent);
+                fighter.Attack(opponent);
 
                 Console.WriteLine("\n" + line);
 
@@ -216,7 +213,10 @@ namespace Arena
 
         public virtual void TakeDamage(float damage)
         {
-            Health -= damage - Armor;
+            if (Armor > 0)
+                Health -= damage - Armor;
+            else
+                Health -= damage;
         }
 
         public virtual void Attack(Fighter opponent)
@@ -227,21 +227,25 @@ namespace Arena
 
         public abstract Fighter Clone(string newName = null);
 
-        protected double GenerateDoubleRandom() => new Random().NextDouble();
+        protected void TryUseSkill(out bool skill)
+        {
+            int minChanceSkill = 1;
+            int maxChanceSkill = 100;
+            int skillChance = 50;
+
+            skill = UserUtils.GenerateRandomNumber(minChanceSkill, maxChanceSkill) < skillChance;
+        }
     }
 
     class Gladiator : Fighter
     {
-        private double _doubleDamageChance;
-
-        public Gladiator(string name = "Гладиатор") : base(name, 150f, 15f, 35f)
-        {
-            _doubleDamageChance = GenerateDoubleRandom();
-        }
+        public Gladiator(string name = "Гладиатор") : base(name, 150f, 15f, 35f) { }
 
         public override void Attack(Fighter opponent)
         {
-            if (GenerateDoubleRandom() <= _doubleDamageChance)
+            TryUseSkill(out bool IsDoubleDamage);
+
+            if (IsDoubleDamage)
             {
                 int multiplier = 2;
                 float attackDoubleDamage = AttackDamage * multiplier;
@@ -397,17 +401,18 @@ namespace Arena
 
     class Berserk : Fighter
     {
-        private double _chanceOfEvasion;
-
-        public Berserk(string name = "Берсерк") : base(name, 170f, 10f, 40f)
-        {
-            _chanceOfEvasion = GenerateDoubleRandom();
-        }
+        public Berserk(string name = "Берсерк") : base(name, 170f, 10f, 40f) { }
 
         public override void TakeDamage(float damage)
         {
-            if (GenerateDoubleRandom() <= _chanceOfEvasion)
+            TryUseSkill(out bool IsEvasion);
+
+            if (IsEvasion)
+            {
                 Console.WriteLine($"{Name}: Я успешно увернулся от удара.");
+
+                return;
+            }
             else
                 base.TakeDamage(damage);
         }
@@ -417,6 +422,21 @@ namespace Arena
             string name = newName ?? Name;
 
             return new Berserk(name);
+        }
+    }
+
+    class UserUtils
+    {
+        private static Random s_random = new Random();
+
+        public static int GenerateRandomNumber(int maxValue)
+        {
+            return s_random.Next(maxValue);
+        }
+
+        public static int GenerateRandomNumber(int minValue, int maxValue)
+        {
+            return s_random.Next(minValue, maxValue);
         }
     }
 }
