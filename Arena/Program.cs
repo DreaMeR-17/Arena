@@ -156,9 +156,7 @@ namespace Arena
 
                 if (index <= _fighters.Count)
                 {
-
                     chosenFighter = _fighters[index - 1];
-
                 }
                 else
                 {
@@ -213,24 +211,12 @@ namespace Arena
         {
             Console.WriteLine($"{Name}:");
             Console.WriteLine($"Количество HP: {(int)Health}");
-            //Console.WriteLine($"Количество брони: {(int)Armor}");
             Console.WriteLine($"Наносимый урон: {(int)AttackDamage}\n");
         }
 
         public virtual void TakeDamage(float damage)
         {
             Health -= damage - Armor;
-
-            //if (Armor > 0)
-            //{
-            //    float percentageProtection = 0.5f;
-            //    float damageResult = damage - (damage * percentageProtection);
-            //    Armor -= damageResult;
-            //}
-            //else
-            //{
-            //    Health -= damage;
-            //}
         }
 
         public virtual void Attack(Fighter opponent)
