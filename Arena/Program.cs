@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Arena
 {
@@ -65,7 +60,7 @@ namespace Arena
 
                     case CommandChooseFighters:
                         Console.Clear();
-                        StartFight();
+                        Fight();
                         break;
 
                     case CommandExit:
@@ -80,21 +75,21 @@ namespace Arena
             }
         }
 
-        private void FightStage()
+        private void CompletionFight()
         {
             int firstFighter = 0;
             int secondFighter = 1;
 
             Fighter fighter1 = _fightingFighters[firstFighter];
             Fighter fighter2 = _fightingFighters[secondFighter];
-            Fight(fighter1, fighter2);
+            FightStage(fighter1, fighter2);
             
             Console.WriteLine("\nБой завершен.");
 
             ClearArena();
         }
 
-        private void Fight(Fighter fighter, Fighter opponent)
+        private void FightStage(Fighter fighter, Fighter opponent)
         {
             string line = new string('#', 50);
 
@@ -118,7 +113,7 @@ namespace Arena
             AnnounceWinner(fighter, opponent);
         }
 
-        private void StartFight()
+        private void Fight()
         {
             Console.Write("Выберите первого бойца: ");
             Fighter firstFighter = GetFighter().Clone();
@@ -136,7 +131,7 @@ namespace Arena
 
             Console.Write("\n");
 
-            FightStage();
+            CompletionFight();
         }
 
         private void AnnounceWinner(Fighter fighter1, Fighter fighter2)
@@ -218,22 +213,24 @@ namespace Arena
         {
             Console.WriteLine($"{Name}:");
             Console.WriteLine($"Количество HP: {(int)Health}");
-            Console.WriteLine($"Количество брони: {(int)Armor}");
+            //Console.WriteLine($"Количество брони: {(int)Armor}");
             Console.WriteLine($"Наносимый урон: {(int)AttackDamage}\n");
         }
 
         public virtual void TakeDamage(float damage)
         {
-            if (Armor > 0)
-            {
-                float percentageProtection = 0.5f;
-                float damageResult = damage - (damage * percentageProtection);
-                Armor -= damageResult;
-            }
-            else
-            {
-                Health -= damage;
-            }
+            Health -= damage - Armor;
+
+            //if (Armor > 0)
+            //{
+            //    float percentageProtection = 0.5f;
+            //    float damageResult = damage - (damage * percentageProtection);
+            //    Armor -= damageResult;
+            //}
+            //else
+            //{
+            //    Health -= damage;
+            //}
         }
 
         public virtual void Attack(Fighter opponent)
@@ -251,7 +248,7 @@ namespace Arena
     {
         private double _doubleDamageChance;
 
-        public Gladiator(string name = "Гладиатор") : base(name, 125f, 15f, 10f)
+        public Gladiator(string name = "Гладиатор") : base(name, 150f, 15f, 35f)
         {
             _doubleDamageChance = GenerateDoubleRandom();
         }
@@ -284,7 +281,7 @@ namespace Arena
     {
         private int _countOfAttacks = 0;
 
-        public Valkyrie(string name = "Валькирия") : base(name, 100f, 15, 15f) { }
+        public Valkyrie(string name = "Валькирия") : base(name, 200f, 15, 35f) { }
 
         public override void Attack(Fighter opponent)
         {
@@ -293,7 +290,7 @@ namespace Arena
             if (_countOfAttacks % everyThirdAttack == 0 && _countOfAttacks > 0)
             {
                 opponent.TakeDamage(AttackDamage + AttackDamage);
-                Console.WriteLine($"{Name} дважды атакует {opponent.Name} и наносит {AttackDamage + AttackDamage} урона.");
+                Console.WriteLine($"{Name} дважды атакует {opponent.Name} и наносит {AttackDamage} и {AttackDamage} урона.");
                 ++_countOfAttacks;
             }
             else
@@ -315,7 +312,7 @@ namespace Arena
     {
         private int _maxRage = 100;
 
-        public Highlander(string name = "Горец") : base(name, 150, 0, 15f)
+        public Highlander(string name = "Горец") : base(name, 300, 0, 45f)
         {
             Rage = 0;
         }
@@ -362,7 +359,7 @@ namespace Arena
 
     class Shaman : Fighter
     {
-        public Shaman(string name = "Шаман") : base(name, 100f, 15f, 15f)
+        public Shaman(string name = "Шаман") : base(name, 100f, 20f, 50f)
         {
             Mana = 0;
         }
@@ -416,7 +413,7 @@ namespace Arena
     {
         private double _chanceOfEvasion;
 
-        public Berserk(string name = "Берсерк") : base(name, 90f, 30f, 10f)
+        public Berserk(string name = "Берсерк") : base(name, 170f, 10f, 40f)
         {
             _chanceOfEvasion = GenerateDoubleRandom();
         }
