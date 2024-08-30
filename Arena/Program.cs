@@ -60,7 +60,7 @@ namespace Arena
                         break;
 
                     case CommandChooseFighters:
-                        Fight();
+                        ChooseFighter();
                         break;
 
                     case CommandExit:
@@ -81,14 +81,14 @@ namespace Arena
 
             Fighter fighter1 = _fightingFighters[firstFighter];
             Fighter fighter2 = _fightingFighters[secondFighter];
-            FightStage(fighter1, fighter2);
+            Fight(fighter1, fighter2);
 
             Console.WriteLine("\nБой завершен.");
 
             ClearArena();
         }
 
-        private void FightStage(Fighter fighter, Fighter opponent)
+        private void Fight(Fighter fighter, Fighter opponent)
         {
             string line = new string('#', 50);
 
@@ -110,7 +110,7 @@ namespace Arena
             AnnounceWinner(fighter, opponent);
         }
 
-        private void Fight()
+        private void ChooseFighter()
         {
             Console.Write("Выберите первого бойца: ");
             Fighter firstFighter = GetFighter().Clone();
@@ -134,13 +134,9 @@ namespace Arena
         private void AnnounceWinner(Fighter fighter1, Fighter fighter2)
         {
             if (fighter1.Health <= 0)
-            {
                 Console.WriteLine($"{fighter2.Name} одержал победу над {fighter1.Name}");
-            }
             else if (fighter2.Health <= 0)
-            {
                 Console.WriteLine($"{fighter1.Name} одержал победу над {fighter2.Name}");
-            }
         }
 
         private Fighter GetFighter()
@@ -151,14 +147,10 @@ namespace Arena
             {
                 int index = GetNumber(Console.ReadLine());
 
-                if (index <= _fighters.Count)
-                {
+                if (index <= _fighters.Count && index > 0)
                     chosenFighter = _fighters[index - 1];
-                }
                 else
-                {
                     Console.WriteLine("Неверный ввод номера бойца.");
-                }
             }
 
             return chosenFighter;
@@ -213,8 +205,10 @@ namespace Arena
 
         public virtual void TakeDamage(float damage)
         {
-            if (Armor > 0)
+            if (Armor > 0 && Armor <= damage)
                 Health -= damage - Armor;
+            else if (Armor > damage)
+                Health -= 1;
             else
                 Health -= damage;
         }
@@ -276,11 +270,18 @@ namespace Arena
         public override void Attack(Fighter opponent)
         {
             int everyThirdAttack = 3;
+            int countOfAttacks = 2;
+            int currentAttack = 1;
 
             if (_countOfAttacks % everyThirdAttack == 0 && _countOfAttacks > 0)
             {
-                opponent.TakeDamage(AttackDamage + AttackDamage);
-                Console.WriteLine($"{Name} дважды атакует {opponent.Name} и наносит {AttackDamage} и {AttackDamage} урона.");
+                while(currentAttack <= countOfAttacks)
+                {
+                    opponent.TakeDamage(AttackDamage);
+                    currentAttack++;
+                }
+
+                Console.WriteLine($"{Name} дважды атакует {opponent.Name} и наносит {AttackDamage}, а затем {AttackDamage} урона.");
                 ++_countOfAttacks;
             }
             else
